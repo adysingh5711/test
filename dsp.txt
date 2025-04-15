@@ -1,4 +1,330 @@
 ************************************************************************************************************************************************
+Continous and discrete 
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Time vector (continuous)
+t_cont = np.linspace(-5, 5, 1000)
+
+# Discrete time vector (sampled at intervals)
+t_discrete = np.arange(-5, 5, 0.2)
+
+# Continuous signals
+u_t_cont = np.heaviside(t_cont, 1)
+delta_t_cont = np.zeros_like(t_cont)
+delta_t_cont[np.abs(t_cont) < 0.01] = 1
+r_t_cont = np.maximum(t_cont, 0)
+exp_t_cont = np.exp(0.5 * t_cont)
+sin_t_cont = np.sin(t_cont)
+parabola_t_cont = t_cont ** 2  # Parabolic signal
+
+# Discrete signals (sampling the continuous signals)
+u_t_discrete = np.heaviside(t_discrete, 1)
+delta_t_discrete = np.zeros_like(t_discrete)
+delta_t_discrete[np.abs(t_discrete) < 0.01] = 1
+r_t_discrete = np.maximum(t_discrete, 0)
+exp_t_discrete = np.exp(0.5 * t_discrete)
+sin_t_discrete = np.sin(t_discrete)
+parabola_t_discrete = t_discrete ** 2  # Parabolic signal
+
+# Plot continuous signals
+plt.figure(figsize=(12, 10))
+
+# Plot Unit Step Signal (Continuous)
+plt.subplot(3, 2, 1)
+plt.plot(t_cont, u_t_cont)
+plt.title('Unit Step Signal (Continuous)')
+
+# Plot Unit Impulse Signal (Continuous)
+plt.subplot(3, 2, 2)
+plt.plot(t_cont, delta_t_cont)
+plt.title('Unit Impulse Signal (Continuous)')
+
+# Plot Ramp Signal (Continuous)
+plt.subplot(3, 2, 3)
+plt.plot(t_cont, r_t_cont)
+plt.title('Ramp Signal (Continuous)')
+
+# Plot Exponential Signal (Continuous)
+plt.subplot(3, 2, 4)
+plt.plot(t_cont, exp_t_cont)
+plt.title('Exponential Signal (Continuous)')
+# Plot Sinusoidal Signal (Continuous)
+plt.subplot(3, 2, 5)
+plt.plot(t_cont, sin_t_cont)
+plt.title('Sinusoidal Signal (Continuous)')
+
+# Plot Parabolic Signal (Continuous)
+plt.subplot(3, 2, 6)
+plt.plot(t_cont, parabola_t_cont)
+plt.title('Parabolic Signal (Continuous)')
+
+# Show continuous plot
+plt.tight_layout()
+plt.show()
+
+# Plot discrete signals with increased spacing
+plt.figure(figsize=(12, 14))  # Increased figure height for more space
+
+# Plot Unit Step Signal (Discrete) as sticks
+plt.subplot(3, 2, 1)
+plt.vlines(t_discrete, 0, u_t_discrete, colors='b', lw=2)
+plt.title('Unit Step Signal (Discrete)')
+
+# Plot Unit Impulse Signal (Discrete) as sticks
+plt.subplot(3, 2, 2)
+plt.vlines(t_discrete, 0, delta_t_discrete, colors='b', lw=2)
+plt.title('Unit Impulse Signal (Discrete)')
+
+# Plot Ramp Signal (Discrete) as sticks
+plt.subplot(3, 2, 3)
+plt.vlines(t_discrete, 0, r_t_discrete, colors='b', lw=2)
+plt.title('Ramp Signal (Discrete)')
+
+# Plot Exponential Signal (Discrete) as sticks
+plt.subplot(3, 2, 4)
+plt.vlines(t_discrete, 0, exp_t_discrete, colors='b', lw=2)
+plt.title('Exponential Signal (Discrete)')
+
+# Plot Sinusoidal Signal (Discrete) as sticks
+plt.subplot(3, 2, 5)
+plt.vlines(t_discrete, 0, sin_t_discrete, colors='b', lw=2)
+plt.title('Sinusoidal Signal (Discrete)')
+
+# Plot Parabolic Signal (Discrete) as sticks
+plt.subplot(3, 2, 6)
+plt.vlines(t_discrete, 0, parabola_t_discrete, colors='b', lw=2)
+plt.title('Parabolic Signal (Discrete)')
+
+# Show discrete plot with increased spacing
+plt.tight_layout()
+plt.show()
+************************************************************************************************************************************************
+A Linear Convolution
+import numpy as np
+
+def manual_convolution(x, h):
+    # Length of the sequences
+    len_x = len(x)
+    len_h = len(h)
+
+    # Length of the output sequence
+    len_y = len_x + len_h - 1
+
+    # Initialize the output sequence with zeros
+    y = [0] * len_y
+
+    # Perform convolution
+    for n in range(len_y):
+        for k in range(len_x):
+            if 0 <= n - k < len_h:
+                y[n] += x[k] * h[n - k]
+
+    return y
+
+# Define the input sequences
+x = [1, -1, -2, 3, -1]
+h = [1, 2, 3]
+
+# Built-in function
+numpy_convolution = np.convolve(x, h)
+
+# Our created function
+manual_result = manual_convolution(x, h)
+
+# Print the input sequences
+print("Input sequence x:", x)
+print("Input sequence h:", h)
+
+# Print the convolution results
+print("Convolution result using NumPy:", numpy_convolution)
+print("Convolution result using manual calculation:", manual_result)
+************************************************************************************************************************************************
+circular Convolution
+# Defining sequences
+a = [1, -1, -2, 3, -1]
+b = [1, 2, 3, 0]
+
+len_x = len(a)
+len_y = len(b)
+n = max(len_x, len_y)  # Using max length for circular convolution
+
+# Zero-padding to match lengths
+a += [0] * (n - len_x)
+b += [0] * (n - len_y)
+
+# Output sequence
+c = [0] * n
+
+print("Input sequence a: ", a)
+print("Input sequence b: ", b)
+
+for i in range(n):
+    for j in range(n):
+        c[i] += a[j] * b[(i - j) % n]
+
+print("Circular Convoluted Sequence: ", c)
+************************************************************************************************************************************************
+Upsample and downsample                          
+import matplotlib.pyplot as plt
+import soundfile as sf
+from scipy.signal import resample
+from google.colab import files  # Corrected this line ✅
+
+# Uploading and using the file
+Uploaded = files.upload()
+file_name = next(iter(Uploaded))
+audio, sample_rate = sf.read(file_name)
+
+# Plotting the graph for the audio
+plt.figure(figsize=(10, 6))
+plt.plot(audio[:1000])
+plt.title("Original Audio")
+plt.show()
+
+# Upsampling the audio
+upsampled_audio = resample(audio, len(audio) * 2)
+upsampled_rate = sample_rate * 2
+
+# Plotting the upsampled audio
+plt.figure(figsize=(10, 6))
+plt.plot(upsampled_audio[:1000])
+plt.title("Upsampled Audio")
+plt.show()
+
+# Downsampling the audio
+downsampled_audio = resample(audio, len(audio) // 2)
+downsampled_rate = sample_rate // 2
+
+# Plotting the downsampled audio
+plt.figure(figsize=(10, 6))
+plt.plot(downsampled_audio[:1000])
+plt.title("Downsampled Audio")
+plt.show()
+
+# Writing the audio to the disk
+sf.write('/content/upsampled_audio.wav', upsampled_audio, upsampled_rate)
+sf.write('/content/downsampled_audio.wav', downsampled_audio, downsampled_rate)
+
+# Auto downloading the files
+files.download('/content/upsampled_audio.wav')
+files.download('/content/downsampled_audio.wav')
+************************************************************************************************************************************************
+
+dft               
+import cmath
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Compute the Discrete Fourier Transform (DFT)
+def optimized_dft(X):
+    N = len(X)
+    X_dft = []
+    for K in range(N):
+        sum_val = 0
+        for n in range(N):
+            angle = -2j * cmath.pi * K * n / N
+            sum_val += X[n] * cmath.exp(angle)
+        X_dft.append(sum_val)
+    return X_dft
+
+# Input Sequence
+X = [1, -1, 2, -2, 3, -3, 4, -4, -5]
+print("Input Sequence:", X)
+
+# Compute DFT using our Custom method
+X_optimized = optimized_dft(X)
+
+# Compute DFT using Numpy's FFT (for comparison if needed)
+X_fft = np.fft.fft(X)
+
+# Print DFT results from custom method
+print("\nFrom Our Method:")
+for i, value in enumerate(X_optimized):
+    print(f"X[{i}] = {{ Value_real: {value.real:.3f}, Value_img: {value.imag:.3f} }}")
+
+# Plotting magnitude and phase spectrum
+plt.figure(figsize=(12, 5))
+
+# Magnitude spectrum
+plt.subplot(1, 2, 1)
+plt.stem(range(len(X_optimized)), [abs(val) for val in X_optimized], basefmt=" ")
+plt.xlabel("Frequency Index")
+plt.ylabel("Magnitude")
+plt.title("DFT Magnitude Spectrum")
+plt.grid(True)
+
+# Phase spectrum
+plt.subplot(1, 2, 2)
+plt.stem(range(len(X_optimized)), [cmath.phase(val) for val in X_optimized], basefmt=" ")
+plt.xlabel("Frequency Index")
+plt.ylabel("Phase (radians)")
+plt.title("DFT Phase Spectrum")
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
+************************************************************************************************************************************************
+IDFT
+import cmath
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Compute the Inverse Discrete Fourier Transform (IDFT)
+def optimized_idft(x):
+    N = len(x)
+    # Generate the conjugate twiddle factors for IDFT
+    w_matrix = np.array([[cmath.exp(-2j * cmath.pi * k * m / N) for m in range(N)] for k in range(N)])
+    W = np.linalg.inv(w_matrix)
+    X = []
+    for k in range(N):
+        sum_val = 0
+        for n in range(N):
+            sum_val += x[n] * W[k, n]
+        X.append(sum_val)
+    return X
+
+# Input sequence (DFT coefficients)
+X = [5, 0, complex(1, -1), 0, 1, 0, complex(1, 1), 0]
+
+# Compute IDFT using custom method
+x_optimized = optimized_idft(X)
+
+# Compute IDFT using NumPy's ifft
+x_ifft = np.fft.ifft(X)
+
+# Print results
+print("From Our Method (IDFT):")
+for i, value in enumerate(x_optimized):
+    print(f"x[{i}] = {value.real:.3f} + {value.imag:.3f}j")
+
+print("\nFrom NumPy IFFT:")
+for i, value in enumerate(x_ifft):
+    print(f"x[{i}] = {value.real:.3f} + {value.imag:.3f}j")
+
+# Plot magnitude of IDFT (time-domain signal)
+plt.figure(figsize=(10, 4))
+plt.stem(range(len(x_optimized)), [abs(val) for val in x_optimized])
+plt.xlabel("Time Index")
+plt.ylabel("Magnitude")
+plt.title("IDFT Magnitude Spectrum (Time Domain)")
+plt.grid()
+plt.tight_layout()
+plt.show()
+
+# Plot phase of IDFT
+plt.figure(figsize=(10, 4))
+plt.stem(range(len(x_optimized)), [np.angle(val) for val in x_optimized])
+plt.xlabel("Time Index")
+plt.ylabel("Phase (radians)")
+plt.title("IDFT Phase Spectrum (Time Domain)")
+plt.grid()
+plt.tight_layout()
+plt.show()
+
+
+************************************************************************************************************************************************
 ******************************************************************** Overlap Save **************************************************************
 
 import numpy as np
